@@ -1,7 +1,5 @@
 package main
 
-var opsRuleLabelsBase01 = make([]string, 3, 5)
-
 func opsRules01() []OpsRule {
 	return []OpsRule{
 		opsRule0101(),
@@ -11,11 +9,15 @@ func opsRules01() []OpsRule {
 		opsRule0105(),
 		opsRule0106(),
 		opsRule0107(),
+		opsRule0108(),
 	}
 }
 
 func opsRule0101() OpsRule {
-	labels := append(opsRuleLabelsBase01, "checked")
+	labels := []string{"site", "operator", "evidence"}
+	if 1%2 == 0 {
+		labels = append(labels, "reviewed")
+	}
 	return OpsRule{
 		Code:           "OPS-0101",
 		Name:           "forest-fire-watch-service control 0101",
@@ -26,7 +28,10 @@ func opsRule0101() OpsRule {
 }
 
 func opsRule0102() OpsRule {
-	labels := append(opsRuleLabelsBase01, "reviewed")
+	labels := []string{"site", "operator", "evidence"}
+	if 2%2 == 0 {
+		labels = append(labels, "reviewed")
+	}
 	return OpsRule{
 		Code:           "OPS-0102",
 		Name:           "forest-fire-watch-service control 0102",
