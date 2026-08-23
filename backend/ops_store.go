@@ -14,27 +14,34 @@ type OpsStore struct {
 func newOpsStore(seed []OpsRecord) *OpsStore {
 	s := &OpsStore{items: map[string]OpsRecord{}}
 	for _, item := range seed {
-		item = normalizeOpsRecord(item)
+		item = normalizeOpsRecord(item).Clone()
 		s.items[item.ID] = item
 	}
 	return s
 }
 func (s *OpsStore) Get(ctx context.Context, id string) (OpsRecord, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	item, ok := s.items[id]
 	if !ok {
 		return OpsRecord{}, ErrOpsNotFound
 	}
-	return item, nil
+	return item.Clone(), nil
 }
 func (s *OpsStore) List(ctx context.Context) ([]OpsRecord, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	out := make([]OpsRecord, 0, len(s.items))
 	for _, item := range s.items {
-		out = append(out, item)
+		out = append(out, item.Clone())
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 	return out, nil
 }
 func (s *OpsStore) Put(ctx context.Context, item OpsRecord) error {
+	item = normalizeOpsRecord(item).Clone()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if _, ok := s.items[item.ID]; ok {
 		return ErrOpsConflict
 	}
@@ -42,6 +49,9 @@ func (s *OpsStore) Put(ctx context.Context, item OpsRecord) error {
 	return nil
 }
 func (s *OpsStore) Update(ctx context.Context, item OpsRecord, expected int) error {
+	item = normalizeOpsRecord(item).Clone()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	current, ok := s.items[item.ID]
 	if !ok {
 		return ErrOpsNotFound
@@ -55,10 +65,12 @@ func (s *OpsStore) Update(ctx context.Context, item OpsRecord, expected int) err
 	return nil
 }
 func (s *OpsStore) Delete(ctx context.Context, id string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if _, ok := s.items[id]; !ok {
 		return ErrOpsNotFound
 	}
 	delete(s.items, id)
 	return nil
 }
-func (s *OpsStore) Count() int { return len(s.items) }
+func (s *OpsStore) Count() int { s.mu.RLock(); defer s.mu.RUnlock(); return len(s.items) }

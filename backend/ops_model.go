@@ -82,7 +82,13 @@ type OpsSnapshot struct {
 
 func (r OpsRecord) Clone() OpsRecord {
 	copy := r
-	copy.Labels = r.Labels
+	if r.Labels != nil {
+		labels := make(map[string]string, len(r.Labels))
+		for k, v := range r.Labels {
+			labels[k] = v
+		}
+		copy.Labels = labels
+	}
 	return copy
 }
 
