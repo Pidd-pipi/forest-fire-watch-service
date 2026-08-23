@@ -30,8 +30,11 @@ func (p OpsPolicy) Check(record OpsRecord) error {
 	if p.RequiredLabel != "" && record.LabelValue(p.RequiredLabel) == "" {
 		return fmt.Errorf("%w: %s label required", ErrOpsPolicy, p.RequiredLabel)
 	}
-	if record.Priority == "" {
-		return fmt.Errorf("%w: priority required", ErrOpsPolicy)
+	if !opsStatusValid(record.Status) {
+		return fmt.Errorf("%w: invalid status", ErrOpsPolicy)
+	}
+	if !opsPriorityValid(record.Priority) {
+		return fmt.Errorf("%w: invalid priority", ErrOpsPolicy)
 	}
 	return nil
 }

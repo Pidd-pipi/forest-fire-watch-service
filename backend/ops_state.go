@@ -55,6 +55,11 @@ func (m *OpsStateMachine) Last() (OpsTransition, bool) {
 }
 func (m *OpsStateMachine) Reset() { m.mu.Lock(); defer m.mu.Unlock(); m.history = m.history[:0] }
 func opsStatusValid(value OpsStatus) bool {
-	return value == "" || value == OpsStatusQueued || value == OpsStatusActive || value == OpsStatusPaused || value == OpsStatusClosed
+	switch value {
+	case OpsStatusQueued, OpsStatusActive, OpsStatusPaused, OpsStatusClosed:
+		return true
+	default:
+		return false
+	}
 }
 func opsStatusTerminal(value OpsStatus) bool { return value == OpsStatusClosed }

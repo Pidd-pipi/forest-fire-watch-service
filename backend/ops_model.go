@@ -105,6 +105,15 @@ func (p OpsPriority) Weight() int {
 	}
 }
 
+func opsPriorityValid(value OpsPriority) bool {
+	switch value {
+	case OpsPriorityLow, OpsPriorityNormal, OpsPriorityHigh, OpsPriorityCritical:
+		return true
+	default:
+		return false
+	}
+}
+
 func normalizeOpsRecord(record OpsRecord) OpsRecord {
 	record.ID = strings.ToLower(strings.TrimSpace(record.ID))
 	record.Subject = strings.Join(strings.Fields(record.Subject), " ")
@@ -112,9 +121,13 @@ func normalizeOpsRecord(record OpsRecord) OpsRecord {
 	if record.Revision < 1 {
 		record.Revision = 1
 	}
-	if record.Labels == nil {
-		record.Labels = map[string]string{}
+	// Always allocate a fresh Labels map so the normalized record never aliases
+	// the caller's map; later mutations to the input cannot bleed into the store.
+	labels := map[string]string{}
+	for key, value := range record.Labels {
+		labels[key] = value
 	}
+	record.Labels = labels
 	return record
 }
 
