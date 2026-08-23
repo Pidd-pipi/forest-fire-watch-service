@@ -15,6 +15,8 @@ func main() {
 	m := http.NewServeMux()
 	m.HandleFunc("/healthz", health.Handler)
 	m.Handle("/api/v1/", httpapi.New(store.New()))
+	m.Handle("/api/v1/operations", newOpsHandler(newOpsService(seedOpsRecords())))
+	m.Handle("/api/v1/operations/", newOpsHandler(newOpsService(seedOpsRecords())))
 	m.HandleFunc("/", web.Handler)
 	log.Printf("forest fire watch listening on %s", c.Address())
 	log.Fatal(serveAddress(c.Address(), m))
