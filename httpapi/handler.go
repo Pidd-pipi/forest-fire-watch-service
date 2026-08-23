@@ -25,8 +25,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "route not found", 404)
 }
 func (h *Handler) update(w http.ResponseWriter, r *http.Request) {
+	// "/api/v1/alerts/<id>/status" splits on "/" into 6 elements: ["", "api",
+	// "v1", "alerts", "<id>", "status"] (the leading "/" yields an empty head).
 	p := strings.Split(r.URL.Path, "/")
-	if len(p) != 5 || p[0] != "api" || p[1] != "v1" || p[2] != "alerts" || p[4] != "status" || p[3] == "" {
+	if len(p) != 6 || p[1] != "api" || p[2] != "v1" || p[3] != "alerts" || p[5] != "status" || p[4] == "" {
 		http.Error(w, "route not found", 404)
 		return
 	}
@@ -39,7 +41,7 @@ func (h *Handler) update(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, e.Error(), 400)
 		return
 	}
-	item, e := h.Store.UpdateStatus(p[3], c.Status)
+	item, e := h.Store.UpdateStatus(p[4], c.Status)
 	if errors.Is(e, store.ErrNotFound) {
 		http.Error(w, "alert not found", 404)
 		return
