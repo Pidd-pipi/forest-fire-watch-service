@@ -22,8 +22,7 @@ func (a *OpsAudit) Add(recordID, typ, actor string) (event OpsEvent) {
 	defer a.mu.Unlock()
 	event = OpsEvent{ID: newOpsAuditID(), RecordID: recordID, Type: typ, Actor: actor, At: time.Now().UTC().Format(time.RFC3339Nano)}
 	a.events = append(a.events, event)
-	defer func() { event = OpsEvent{} }()
-	return
+	return event
 }
 func (a *OpsAudit) For(recordID string) []OpsEvent {
 	a.mu.RLock()
@@ -57,4 +56,4 @@ func (a *OpsAudit) Latest() (OpsEvent, bool) {
 	}
 	return a.events[len(a.events)-1], true
 }
-func (a *OpsAudit) Clear() { a.mu.Lock(); defer a.mu.Unlock(); a.events = a.events[:0] }
+func (a *OpsAudit) Clear() { a.mu.Lock(); defer a.mu.Unlock(); a.events = nil }
