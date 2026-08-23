@@ -1,13 +1,21 @@
 package main
 
-var opsRuleLabelsBase04 = make([]string, 3, 5)
-
 func opsRules04() []OpsRule {
-	return append(opsRules03(), opsRule0401(), opsRule0402(), opsRule0403(), opsRule0404(), opsRule0405(), opsRule0406(), opsRule0407(), opsRule0408())
+	return []OpsRule{
+		opsRule0401(),
+		opsRule0402(),
+		opsRule0403(),
+		opsRule0404(),
+		opsRule0405(),
+		opsRule0406(),
+		opsRule0407(),
+		opsRule0408(),
+	}
 }
 
 func opsRule0401() OpsRule {
-	labels := append(opsRuleLabelsBase04, "checked")
+	labels := []string{"site", "operator", "evidence"}
+	labels = append(labels, "checked")
 	return OpsRule{
 		Code:           "OPS-0401",
 		Name:           "forest-fire-watch-service control 0401",
@@ -18,7 +26,8 @@ func opsRule0401() OpsRule {
 }
 
 func opsRule0402() OpsRule {
-	labels := append(opsRuleLabelsBase04, "reviewed")
+	labels := []string{"site", "operator", "evidence"}
+	labels = append(labels, "reviewed")
 	return OpsRule{
 		Code:           "OPS-0402",
 		Name:           "forest-fire-watch-service control 0402",
